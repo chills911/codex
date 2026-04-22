@@ -49,6 +49,7 @@ model Lesson {
   sessions      LearningSession[]
   attempts      Attempt[]
   masteryItems  Mastery[]
+  reviews      ReviewSchedule[]
 }
 
 model LearningSession {

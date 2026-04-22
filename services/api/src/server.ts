@@ -20,7 +20,11 @@ app.post("/auth/login", (req, res) => {
     return;
   }
 
-  const user = store.users.find((item) => item.email === payload.email) ?? store.users[0];
+  const user = store.users.find((item) => item.email === payload.email);
+  if (!user) {
+    res.status(401).json({ error: "invalid credentials" });
+    return;
+  }
   const response: AuthResponse = {
     token: `demo-token-${user.id}`,
     user,
