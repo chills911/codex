@@ -21,6 +21,8 @@ Install globally with your preferred package manager. If you use npm:
 npm install -g @openai/codex
 ```
 
+If npm returns `E403` while resolving packages (including common packages like `lodash`), your network proxy is likely blocking `registry.npmjs.org`. Verify proxy settings with `npm config get registry` and your `HTTP_PROXY`/`HTTPS_PROXY` environment variables, or use the Homebrew/GitHub release installation options below.
+
 Alternatively, if you use Homebrew:
 
 ```shell
