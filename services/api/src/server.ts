@@ -20,7 +20,11 @@ app.post("/auth/login", (req, res) => {
     return;
   }
 
-  const user = store.users.find((item) => item.email === payload.email) ?? store.users[0];
+  const user = store.users.find((item) => item.email === payload.email);
+  if (!user) {
+    res.status(401).json({ error: "invalid credentials" });
+    return;
+  }
   const response: AuthResponse = {
     token: `demo-token-${user.id}`,
     user,
@@ -103,6 +107,12 @@ app.get("/users/:userId/assessments", (req, res) => {
 app.post("/assessments", (req, res) => {
   const payload = req.body as AssessmentResult;
 
+  const session = store.sessions.find((item) => item.sessionId === payload.sessionId);
+  if (!session) {
+    res.status(400).json({ error: "valid sessionId is required" });
+    return;
+  }
+
   const next: AssessmentResult = {
     ...payload,
     id: payload.id ?? `a_${store.assessments.length + 1}`,
@@ -113,7 +123,7 @@ app.post("/assessments", (req, res) => {
   store.attempts.push({
     id: `at_${store.attempts.length + 1}`,
     userId: next.learnerId,
-    lessonId: store.sessions.find((session) => session.sessionId === next.sessionId)?.lessonId ?? "unknown",
+    lessonId: session.lessonId,
     sessionId: next.sessionId,
     quizScore: next.score,
     submittedAt: next.submittedAt,
