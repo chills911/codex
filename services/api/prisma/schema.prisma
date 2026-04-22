@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  passwordHash      String?
+  ssoProvider       String?
+  fullName          String
+  role              String
+  escalationEnabled Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  attempts          Attempt[]
+  masteryRecords    Mastery[]
+  reviews           ReviewSchedule[]
+}
+
+model Course {
+  id        String   @id @default(cuid())
+  title     String
+  track     String
+  modules   Module[]
+  createdAt DateTime @default(now())
+}
+
+model Module {
+  id        String   @id @default(cuid())
+  title     String
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id])
+  lessons   Lesson[]
+  createdAt DateTime @default(now())
+}
+
+model Lesson {
+  id            String   @id @default(cuid())
+  moduleId      String
+  module        Module   @relation(fields: [moduleId], references: [id])
+  title         String
+  sourceExcerpt String
+  createdAt     DateTime @default(now())
+  attempts      Attempt[]
+  masteryItems  Mastery[]
+}
+
+model Attempt {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  lessonId       String
+  lesson         Lesson   @relation(fields: [lessonId], references: [id])
+  sessionState   Json
+  quizScore      Float
+  assessmentJson Json
+  submittedAt    DateTime @default(now())
+}
+
+model Mastery {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  lessonId      String
+  lesson        Lesson   @relation(fields: [lessonId], references: [id])
+  masteryLevel  Float
+  lastEvaluated DateTime @default(now())
+
+  @@unique([userId, lessonId])
+}
+
+model ReviewSchedule {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  lessonId    String
+  dueAt       DateTime
+  intervalDay Int
+  easeFactor  Float
+  createdAt   DateTime @default(now())
+}
